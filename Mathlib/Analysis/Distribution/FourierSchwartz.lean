@@ -217,4 +217,32 @@ alias norm_fourierTransformCLM_toL2_eq := norm_fourier_toL2_eq
 
 end L2
 
+section L1
+
+@[simp]
+theorem norm_fourier_apply_leq_toLp_one (f : 𝓢(V, F)) (x : V) :
+    ‖𝓕 f x‖ ≤ ‖f.toLp 1‖ := by
+  calc
+    _ = ‖∫ (v : V), 𝐞 (-inner ℝ v x) • f v‖ := by rw [fourier_coe, Real.fourier_eq]
+    _ ≤ ∫ (v : V), ‖𝐞 (-inner ℝ v x) • f v‖ := norm_integral_le_integral_norm _
+    _ = ∫ (v : V), ‖f v‖ := by simp
+    _ = _ := by rw [norm_toLp_one]
+
+theorem norm_fourier_Lp_top_leq_toLp_one (f : 𝓢(V, F)) :
+    ‖(𝓕 f).toLp ⊤‖ ≤ ‖f.toLp 1‖ := by
+
+  sorry
+  --simpa using norm_fourier_toBoundedContinuousFunction_top_leq_toLp_one f
+
+theorem norm_fourier_toBoundedContinuousFunction_leq_toLp_one (f : 𝓢(V, F)) :
+    ‖(𝓕 f).toBoundedContinuousFunction‖ ≤ ‖f.toLp 1‖ := by
+  rw [BoundedContinuousFunction.norm_le (by positivity)]
+  simp
+
+theorem norm_fourier_toZeroAtInfty_leq_toLp_one (f : 𝓢(V, F)) :
+    ‖(𝓕 f).toZeroAtInfty‖ ≤ ‖f.toLp 1‖ := by
+  simpa using norm_fourier_toBoundedContinuousFunction_top_leq_toLp_one f
+
+end L1
+
 end SchwartzMap

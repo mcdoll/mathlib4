@@ -13,6 +13,7 @@ public import Mathlib.MeasureTheory.Group.Integral
 public import Mathlib.MeasureTheory.Integral.Bochner.Set
 public import Mathlib.Topology.EMetricSpace.Paracompact
 public import Mathlib.MeasureTheory.Measure.Haar.Unique
+public import Mathlib.Analysis.Fourier.L1Space
 
 /-!
 # The Riemann-Lebesgue Lemma
@@ -176,6 +177,8 @@ theorem tendsto_integral_exp_inner_smul_cocompact_of_continuous_compact_support 
 
 variable (f)
 
+variable [CompleteSpace E]
+
 /-- Riemann-Lebesgue lemma for functions on a real inner-product space: the integral
 `∫ v, exp (-2 * π * ⟪w, v⟫ * I) • f v` tends to 0 as `w → ∞`. -/
 theorem tendsto_integral_exp_inner_smul_cocompact :
@@ -184,7 +187,11 @@ theorem tendsto_integral_exp_inner_smul_cocompact :
   · convert tendsto_const_nhds (x := (0 : E)) with w
     apply integral_undef
     rwa [Real.fourierIntegral_convergent_iff]
-  refine Metric.tendsto_nhds.mpr fun ε hε => ?_
+  apply riemann_lebesgue f
+  exact memLp_one_iff_integrable.mpr hfi
+
+  sorry
+  /-refine Metric.tendsto_nhds.mpr fun ε hε => ?_
   obtain ⟨g, hg_supp, hfg, hg_cont, -⟩ :=
     hfi.exists_hasCompactSupport_integral_sub_le (div_pos hε two_pos)
   refine
@@ -203,7 +210,9 @@ theorem tendsto_integral_exp_inner_smul_cocompact :
   replace := add_lt_add_of_le_of_lt this hI
   rw [add_halves] at this
   refine ((le_of_eq ?_).trans (norm_add_le _ _)).trans_lt this
-  simp only [sub_zero, sub_add_cancel]
+  simp only [sub_zero, sub_add_cancel]-/
+
+#exit
 
 /-- The Riemann-Lebesgue lemma for functions on `ℝ`. -/
 theorem Real.tendsto_integral_exp_smul_cocompact (f : ℝ → E) :

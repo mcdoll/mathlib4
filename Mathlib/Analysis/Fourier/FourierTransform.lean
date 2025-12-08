@@ -83,6 +83,13 @@ def fourierIntegral (e : AddChar 𝕜 𝕊) (μ : Measure V) (L : V →ₗ[𝕜]
     (w : W) : E :=
   ∫ v, e (-L v w) • f v ∂μ
 
+theorem fourierIntegral_congr_ae (e : AddChar 𝕜 𝕊) (μ : Measure V) (L : V →ₗ[𝕜] W →ₗ[𝕜] 𝕜)
+    {f₁ f₂ : V → E} (hf : f₁ =ᵐ[μ] f₂) : fourierIntegral e μ L f₁ = fourierIntegral e μ L f₂ := by
+  ext
+  apply integral_congr_ae
+  filter_upwards [hf] with _ hf'
+  rw [hf']
+
 theorem fourierIntegral_const_smul (e : AddChar 𝕜 𝕊) (μ : Measure V)
     (L : V →ₗ[𝕜] W →ₗ[𝕜] 𝕜) (f : V → E) (r : ℂ) :
     fourierIntegral e μ L (r • f) = r • fourierIntegral e μ L f := by
@@ -432,6 +439,11 @@ alias fourierIntegralInv := FourierTransform.fourierInv
 
 lemma fourier_eq (f : V → E) (w : V) :
     𝓕 f w = ∫ v, 𝐞 (-⟪v, w⟫) • f v := rfl
+
+theorem fourier_congr_ae {f₁ f₂ : V → E} (hf : f₁ =ᵐ[volume] f₂) (x : V) : 𝓕 f₁ x = 𝓕 f₂ x := by
+  apply integral_congr_ae
+  filter_upwards [hf] with _ hf'
+  rw [hf']
 
 @[deprecated (since := "2025-11-16")]
 alias fourierIntegral_eq := fourier_eq
