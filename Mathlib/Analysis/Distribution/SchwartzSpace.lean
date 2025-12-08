@@ -636,22 +636,36 @@ protected def evalCLM (m : E) : 𝓢(E, E →L[ℝ] F) →L[𝕜] 𝓢(E, F) :=
       gcongr
       apply le_seminorm
 
-variable [NormedAlgebra ℝ 𝕜] [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedSpace ℂ G]
-   [NormedSpace ℂ F]
+end EvalCLM
 
+section PostcompCLM
 
-def postcompCLM (L : F →L[ℂ] G) : 𝓢(E, F) →L[ℂ] 𝓢(E, G) :=
+variable [NontriviallyNormedField 𝕜] [NormedAlgebra ℝ 𝕜]
+  [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedSpace 𝕜 G]
+  [NormedSpace 𝕜 F]
+
+variable (E) in
+def postcompCLM (L : F →L[𝕜] G) : 𝓢(E, F) →L[𝕜] 𝓢(E, G) :=
   mkCLM (fun f ↦ L ∘ f) (fun _ _ _ ↦ by simp) (fun _ _ _ ↦ by simp)
     (fun f ↦ (L.restrictScalars ℝ).contDiff.comp f.2) <| by
   intro ⟨k, n⟩
   use {(k, n)}, ‖L‖, norm_nonneg _
   intro f x
   simp only [Finset.sup_singleton, schwartzSeminormFamily_apply]
-  sorry
+  calc
+    _ ≤ ‖x‖ ^ k * (‖L‖ * ‖iteratedFDeriv ℝ n f x‖) := by
+      gcongr
+      exact (L.restrictScalars ℝ).norm_iteratedFDeriv_comp_left (f.smooth _).contDiffAt le_rfl
+    _ ≤ ‖L‖ * SchwartzMap.seminorm 𝕜 k n f := by
+      move_mul [‖L‖]
+      gcongr
+      apply le_seminorm
 
-#exit
+@[simp]
+theorem postcompCLM_apply_apply (L : F →L[𝕜] G) (f : 𝓢(E, F)) (x : E) :
+    f.postcompCLM E L x = L (f x) := rfl
 
-end EvalCLM
+end PostcompCLM
 
 section Multiplication
 
