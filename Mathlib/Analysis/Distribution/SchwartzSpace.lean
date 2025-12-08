@@ -616,7 +616,8 @@ end CLM
 
 section EvalCLM
 
-variable [NormedField 𝕜] [NormedSpace 𝕜 F] [SMulCommClass ℝ 𝕜 F]
+variable [NormedField 𝕜]
+variable [NormedSpace 𝕜 F] [SMulCommClass ℝ 𝕜 F]
 
 /-- The map applying a vector to Hom-valued Schwartz function as a continuous linear map. -/
 protected def evalCLM (m : E) : 𝓢(E, E →L[ℝ] F) →L[𝕜] 𝓢(E, F) :=
@@ -634,6 +635,21 @@ protected def evalCLM (m : E) : 𝓢(E, E →L[ℝ] F) →L[𝕜] 𝓢(E, F) :=
       move_mul [‖m‖]
       gcongr
       apply le_seminorm
+
+variable [NormedAlgebra ℝ 𝕜] [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedSpace ℂ G]
+   [NormedSpace ℂ F]
+
+
+def postcompCLM (L : F →L[ℂ] G) : 𝓢(E, F) →L[ℂ] 𝓢(E, G) :=
+  mkCLM (fun f ↦ L ∘ f) (fun _ _ _ ↦ by simp) (fun _ _ _ ↦ by simp)
+    (fun f ↦ (L.restrictScalars ℝ).contDiff.comp f.2) <| by
+  intro ⟨k, n⟩
+  use {(k, n)}, ‖L‖, norm_nonneg _
+  intro f x
+  simp only [Finset.sup_singleton, schwartzSeminormFamily_apply]
+  sorry
+
+#exit
 
 end EvalCLM
 
