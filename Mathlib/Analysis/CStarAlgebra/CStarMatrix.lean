@@ -255,7 +255,11 @@ def mapₗ [Semiring R] [Semiring S] {σ : R →+* S} [AddCommMonoid A] [AddComm
 
 section zero_one
 
-variable [Zero A] [One A] [DecidableEq n]
+variable [Zero A] [DecidableEq n]
+
+section One
+
+variable [One A]
 
 instance instOne : One (CStarMatrix n n A) := inferInstanceAs <| One (Matrix n n A)
 
@@ -267,6 +271,8 @@ theorem one_apply_eq (i) : (1 : CStarMatrix n n A) i i = 1 := Matrix.one_apply_e
 @[simp] theorem one_apply_ne {i j} : i ≠ j → (1 : CStarMatrix n n A) i j = 0 := Matrix.one_apply_ne
 
 theorem one_apply_ne' {i j} : j ≠ i → (1 : CStarMatrix n n A) i j = 0 := Matrix.one_apply_ne'
+
+end One
 
 instance instAddMonoidWithOne [AddMonoidWithOne A] : AddMonoidWithOne (CStarMatrix n n A) where
 
