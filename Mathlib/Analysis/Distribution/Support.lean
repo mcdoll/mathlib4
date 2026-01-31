@@ -230,7 +230,7 @@ theorem IsVanishingOn.lineDerivOp (hf : IsVanishingOn f s) (m : E) :
     IsVanishingOn (∂_{m} f : 𝓢'(E, F)) s := by
   intro u hu
   simp only [lineDerivOp_apply_apply, map_neg, neg_eq_zero]
-  exact hf (∂_{m} u) <| (tsupport_lineDerivOp_subset m u).trans hu
+  exact hf (∂_{m} u) <| (tsupport_fderiv_apply_subset ℝ m u).trans hu
 
 @[grind .]
 theorem IsVanishingOn.iteratedLineDerivOp {n : ℕ} (hf : IsVanishingOn f s) (m : Fin n → E) :
