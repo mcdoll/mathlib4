@@ -19,6 +19,15 @@ For this we also define a predicate `IsVanishingOn` that asserts that a map `f :
 These definitions work independently of a specific class of distributions (classical, tempered, or
 compactly supported) and all basic properties are proved an abstract setting using `FunLike`.
 
+## Main definitions
+* `IsVanishingOn`: A distribution vanishes on a set if it acts trivially on all test functions
+  supported in that subset.
+* `dsupport`: The support of a distribution is the intersection of all closed sets on which that
+  distribution vanishes.
+
+## Main statements
+* `TemperedDistribution.dsupport_delta`: The support of the delta distribution is a single point.
+
 -/
 
 @[expose] public noncomputable section
@@ -199,59 +208,11 @@ end dsupport
 
 end abstract
 
-namespace TemperedDistribution
+section normed
 
-/-! ## Tempered distributions -/
+variable [FunLike F α β] [SeminormedAddGroup α] [Zero β] [Zero V]
 
-open SchwartzMap ContinuousLinearMap MeasureTheory MeasureTheory.Measure
-
-open scoped Nat NNReal ContDiff
-
-variable [NormedAddCommGroup E] [NormedAddCommGroup F] [NormedSpace ℝ E] [NormedSpace ℂ F]
-
-section IsVanishingOn
-
-variable {f : 𝓢'(E, F)} {g : 𝓢'(E, F)} {s s₁ s₂ : Set E}
-
-open scoped Topology
-
-@[grind .]
-theorem IsVanishingOn.smulLeftCLM (hf : IsVanishingOn f s) {g : E → ℂ} (hg : g.HasTemperateGrowth) :
-    IsVanishingOn (smulLeftCLM F g f) s := by
-  intro u hu
-  apply hf ((SchwartzMap.smulLeftCLM ℂ g) u)
-  rw [SchwartzMap.smulLeftCLM_apply hg]
-  exact (tsupport_smul_subset_right g u).trans hu
-
-open LineDeriv
-
-@[grind .]
-theorem IsVanishingOn.lineDerivOp (hf : IsVanishingOn f s) (m : E) :
-    IsVanishingOn (∂_{m} f : 𝓢'(E, F)) s := by
-  intro u hu
-  simp only [lineDerivOp_apply_apply, map_neg, neg_eq_zero]
-  exact hf (∂_{m} u) <| (tsupport_fderiv_apply_subset ℝ m u).trans hu
-
-@[grind .]
-theorem IsVanishingOn.iteratedLineDerivOp {n : ℕ} (hf : IsVanishingOn f s) (m : Fin n → E) :
-    IsVanishingOn (∂^{m} f : 𝓢'(E, F)) s := by
-  induction n with
-  | zero =>
-    exact hf
-  | succ n IH =>
-    exact lineDerivOp (IH <| Fin.tail m) (m 0)
-
-@[grind .]
-theorem isVanishingOn_delta (x : E) : IsVanishingOn (delta x) {x}ᶜ := by
-  intro u hu
-  rw [Set.subset_compl_singleton_iff] at hu
-  apply image_eq_zero_of_notMem_tsupport hu
-
-end IsVanishingOn
-
-section Support
-
-variable {f : 𝓢'(E, F)} {g : 𝓢'(E, F)} {s : Set E}
+variable {f : F → V}
 
 /-- The complement of the support is given by all *bounded* open sets on which `f` vanishes. -/
 theorem support_compl_eq_sUnion_isBounded :
@@ -261,7 +222,7 @@ theorem support_compl_eq_sUnion_isBounded :
   · simp only [Set.sUnion_subset_iff, Set.mem_setOf_eq, and_imp]
     intro s hs₁ hs₂
     have : s = ⋃ (ε : ℝ) (_ : 0 < ε), s ∩ Metric.ball 0 ε := by
-      have : ⋃ (ε : ℝ) (_ : 0 < ε), Metric.ball (0 : E) ε = Set.univ := by
+      have : ⋃ (ε : ℝ) (_ : 0 < ε), Metric.ball (0 : α) ε = Set.univ := by
         rw [Set.iUnion₂_eq_univ_iff]
         intro x
         use ‖x‖ + 1, by positivity
@@ -277,19 +238,72 @@ theorem support_compl_eq_sUnion_isBounded :
   intro s hs₁ hs₂ hs₃
   exact Set.subset_sUnion_of_mem ⟨hs₁, hs₂⟩
 
-theorem support_smulLeftCLM_subset {g : E → ℂ} (hg : g.HasTemperateGrowth) :
+end normed
+
+namespace TemperedDistribution
+
+/-! ## Tempered distributions -/
+
+open SchwartzMap ContinuousLinearMap MeasureTheory MeasureTheory.Measure
+
+open scoped Nat NNReal ContDiff
+
+variable [NormedAddCommGroup E] [NormedAddCommGroup F] [NormedSpace ℝ E] [NormedSpace ℂ F]
+
+variable {f : 𝓢'(E, F)} {g : 𝓢'(E, F)} {s s₁ s₂ : Set E}
+
+section IsVanishingOn
+
+open scoped Topology
+
+@[grind .]
+theorem _root_.IsVanishingOn.smulLeftCLM (hf : IsVanishingOn f s) {g : E → ℂ}
+    (hg : g.HasTemperateGrowth) :
+    IsVanishingOn (smulLeftCLM F g f) s := by
+  intro u hu
+  apply hf ((SchwartzMap.smulLeftCLM ℂ g) u)
+  rw [SchwartzMap.smulLeftCLM_apply hg]
+  exact (tsupport_smul_subset_right g u).trans hu
+
+open LineDeriv
+
+@[grind .]
+theorem _root_.IsVanishingOn.lineDerivOp (hf : IsVanishingOn f s) (m : E) :
+    IsVanishingOn (∂_{m} f : 𝓢'(E, F)) s := by
+  intro u hu
+  simp only [lineDerivOp_apply_apply, map_neg, neg_eq_zero]
+  exact hf (∂_{m} u) <| (tsupport_fderiv_apply_subset ℝ m).trans hu
+
+@[grind .]
+theorem _root_.IsVanishingOn.iteratedLineDerivOp {n : ℕ} (hf : IsVanishingOn f s) (m : Fin n → E) :
+    IsVanishingOn (∂^{m} f : 𝓢'(E, F)) s := by
+  induction n with
+  | zero =>
+    exact hf
+  | succ n IH =>
+    exact (IH <| Fin.tail m).lineDerivOp (m 0)
+
+@[grind .]
+theorem isVanishingOn_delta (x : E) : IsVanishingOn (delta x) {x}ᶜ := by
+  intro u hu
+  rw [Set.subset_compl_singleton_iff] at hu
+  apply image_eq_zero_of_notMem_tsupport hu
+
+end IsVanishingOn
+
+section Support
+
+theorem dsupport_smulLeftCLM_subset {g : E → ℂ} (hg : g.HasTemperateGrowth) :
     dsupport (smulLeftCLM F g f) ⊆ dsupport f := by grind
 
 open LineDeriv
 
-theorem support_lineDerivOp_subset (m : E) : dsupport (∂_{m} f : 𝓢'(E, F)) ⊆ dsupport f := by grind
+theorem dsupport_lineDerivOp_subset (m : E) : dsupport (∂_{m} f : 𝓢'(E, F)) ⊆ dsupport f := by grind
 
-theorem support_iteratedLineDerivOp_subset {n : ℕ} (m : Fin n → E) :
+theorem dsupport_iteratedLineDerivOp_subset {n : ℕ} (m : Fin n → E) :
     dsupport (∂^{m} f : 𝓢'(E, F)) ⊆ dsupport f := by grind
 
-open scoped Topology
-
-theorem support_delta [FiniteDimensional ℝ E] (x : E) : dsupport (delta x) = {x} := by
+theorem dsupport_delta [FiniteDimensional ℝ E] (x : E) : dsupport (delta x) = {x} := by
   apply subset_antisymm
   · intro x' hx'
     rw [mem_dsupport_iff] at hx'
