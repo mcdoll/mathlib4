@@ -7,13 +7,34 @@ module
 
 public import Mathlib.Analysis.Distribution.TemperedDistribution
 
-/-! # Fourier multiplier on Schwartz functions and tempered distributions -/
+/-! # Fourier multiplier on Schwartz functions and tempered distributions
+
+We define a Fourier multiplier as continuous linear maps on Schwartz functions and tempered
+distributions. The multiplier function is throughout assumed to have temperate growth.
+
+## Main definitions
+* `SchwartzMap.fourierMultiplierCLM`: Fourier multiplier on Schwartz functions
+* `TemperedDistribution.fourierMultiplierCLM`: Fourier multiplier on tempered distribution
+
+## Main statements
+* `SchwartzMap.lineDeriv_eq_fourierMultiplierCLM`: the directional derivative is equal to the
+  Fourier multiplier with `inner ℝ . m`.
+* `SchwartzMap.laplacian_eq_fourierMultiplierCLM`: the Laplacian is equal to the Fourier multiplier
+  with `‖·‖`.
+* `TemperedDistribution.lineDeriv_eq_fourierMultiplierCLM`: the distributional directional
+  derivative is equal to the Fourier multiplier with `inner ℝ . m`.
+* `TemperedDistribution.laplacian_eq_fourierMultiplierCLM`: the distributional Laplacian is equal to
+  the Fourier multiplier with `‖·‖`.
+
+-/
 
 @[expose] public noncomputable section
 
 variable {ι 𝕜 E F F₁ F₂ : Type*}
 
 namespace SchwartzMap
+
+/-! ## Schwartz functions -/
 
 open scoped SchwartzMap
 
@@ -25,6 +46,7 @@ variable [RCLike 𝕜]
 open FourierTransform
 
 variable (F) in
+/-- Fourier multiplier on Schwartz functions. -/
 def fourierMultiplierCLM (g : E → 𝕜) : 𝓢(E, F) →L[𝕜] 𝓢(E, F) :=
   fourierInvCLM 𝕜 𝓢(E, F) ∘L (smulLeftCLM F g) ∘L fourierCLM 𝕜 𝓢(E, F)
 
@@ -48,7 +70,7 @@ theorem fourierMultiplierCLM_smul {g : E → 𝕜} (hg : g.HasTemperateGrowth) (
 variable (F) in
 theorem fourierMultiplierCLM_sum {g : ι → E → 𝕜} {s : Finset ι}
     (hg : ∀ i ∈ s, (g i).HasTemperateGrowth) :
-    fourierMultiplierCLM F (fun x ↦ ∑ i ∈ s, g i x) = ∑ i ∈ s, fourierMultiplierCLM F (g i) := by
+    fourierMultiplierCLM F (∑ i ∈ s, g i ·) = ∑ i ∈ s, fourierMultiplierCLM F (g i) := by
   ext1 f
   simp [fourierMultiplierCLM_apply, smulLeftCLM_sum hg]
 
@@ -91,14 +113,16 @@ theorem laplacian_eq_fourierMultiplierCLM (f : 𝓢(E, F)) :
   congr 1
   · ring_nf
     simp
-  rw [fourierMultiplierCLM_ofReal ℂ (by fun_prop)]
-  rw [fourierMultiplierCLM_fourierMultiplierCLM_apply (by fun_prop) (by fun_prop)]
-  simp [pow_two]
-  congr 3
+  · rw [fourierMultiplierCLM_ofReal ℂ (by fun_prop),
+      fourierMultiplierCLM_fourierMultiplierCLM_apply (by fun_prop) (by fun_prop)]
+    ring_nf
+    rfl
 
 end SchwartzMap
 
 namespace TemperedDistribution
+
+/-! ## Tempered distributions -/
 
 open scoped SchwartzMap
 
@@ -109,6 +133,7 @@ variable [NormedAddCommGroup E] [NormedAddCommGroup F]
 open FourierTransform
 
 variable (F) in
+/-- Fourier multiplier on tempered distributions. -/
 def fourierMultiplierCLM (g : E → ℂ) : 𝓢'(E, F) →L[ℂ] 𝓢'(E, F) :=
   fourierInvCLM ℂ 𝓢'(E, F) ∘L (smulLeftCLM F g) ∘L fourierCLM ℂ 𝓢'(E, F)
 
@@ -133,15 +158,10 @@ theorem fourierMultiplierCLM_fourierMultiplierCLM_apply {g₁ g₂ : E → ℂ}
     fourierMultiplierCLM F (g₁ * g₂) f := by
   simp [fourierMultiplierCLM_apply, smulLeftCLM_smulLeftCLM_apply hg₁ hg₂]
 
-theorem fourierMultiplierCLM_smul_apply {g : E → ℂ} (hg : g.HasTemperateGrowth) (c : ℂ)
-    (f : 𝓢'(E, F)) :
-    fourierMultiplierCLM F (c • g) f = c • fourierMultiplierCLM F g f := by
-  simp [fourierMultiplierCLM_apply, smulLeftCLM_smul hg]
-
 theorem fourierMultiplierCLM_smul {g : E → ℂ} (hg : g.HasTemperateGrowth) (c : ℂ) :
     fourierMultiplierCLM F (c • g) = c • fourierMultiplierCLM F g := by
   ext1 f
-  exact fourierMultiplierCLM_smul_apply hg c f
+  simp [fourierMultiplierCLM_apply, smulLeftCLM_smul hg]
 
 section embedding
 
@@ -159,12 +179,9 @@ end embedding
 variable (F) in
 theorem fourierMultiplierCLM_sum {g : ι → E → ℂ} {s : Finset ι}
     (hg : ∀ i ∈ s, (g i).HasTemperateGrowth) :
-    fourierMultiplierCLM F (fun x ↦ ∑ i ∈ s, g i x) = ∑ i ∈ s, fourierMultiplierCLM F (g i) := by
+    fourierMultiplierCLM F (∑ i ∈ s, g i ·) = ∑ i ∈ s, fourierMultiplierCLM F (g i) := by
   ext f u
-  have : 𝓕 (∑ x ∈ s, (SchwartzMap.smulLeftCLM ℂ (g x)) (𝓕⁻ u)) =
-      ∑ x ∈ s, 𝓕 ((SchwartzMap.smulLeftCLM ℂ (g x)) (𝓕⁻ u)) :=
-    map_sum (fourierCLM ℂ 𝓢(E, ℂ)) (fun i ↦ SchwartzMap.smulLeftCLM ℂ (g i) (𝓕⁻ u)) s
-  simp [SchwartzMap.smulLeftCLM_sum hg, UniformConvergenceCLM.sum_apply, this]
+  simp [SchwartzMap.smulLeftCLM_sum hg]
 
 open LineDeriv Real
 
@@ -188,13 +205,12 @@ theorem laplacian_eq_fourierMultiplierCLM (f : 𝓢'(E, F)) :
   congr 1
   ext i x
   simp_rw [lineDeriv_eq_fourierMultiplierCLM, map_smul, smul_smul]
-  rw [fourierMultiplierCLM_fourierMultiplierCLM_apply (by fun_prop) (by fun_prop)]
-  rw [← Complex.coe_smul (-(2 * π) ^ 2)]
+  rw [fourierMultiplierCLM_fourierMultiplierCLM_apply (by fun_prop) (by fun_prop),
+    ← Complex.coe_smul (-(2 * π) ^ 2)]
   congr 4
   · ring_nf
     simp
-  · ext y
-    simp
-    ring
+  · ring_nf
+    rfl
 
 end TemperedDistribution
