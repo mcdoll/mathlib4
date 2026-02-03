@@ -147,8 +147,8 @@ theorem fourierMultiplierCLM_apply_apply (g : E → ℂ) (f : 𝓢'(E, F)) (u : 
   rfl
 
 @[simp]
-theorem fourierMultiplierCLM_const_apply (f : 𝓢'(E, F)) (c : ℂ) :
-    fourierMultiplierCLM F (fun _ ↦ c) f = c • f := by
+theorem fourierMultiplierCLM_const (c : ℂ) :
+    fourierMultiplierCLM F (fun (_ : E) ↦ c) = c • ContinuousLinearMap.id _ _ := by
   ext
   simp
 
