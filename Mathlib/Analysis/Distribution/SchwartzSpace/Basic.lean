@@ -404,6 +404,13 @@ protected def seminorm (k n : ℕ) : Seminorm 𝕜 𝓢(E, F) :=
   Seminorm.ofSMulLE (SchwartzMap.seminormAux k n) (seminormAux_zero k n) (seminormAux_add_le k n)
     (seminormAux_smul_le k n)
 
+/-- The seminorm is given by infimum over all `c` such that the estimate
+`‖x‖ ^ k * ‖iteratedFDeriv ℝ n f x‖ ≤ c` holds.
+
+Note that it is usually better to use `seminorm_le_bound` or `le_seminorm` instead of this lemma. -/
+theorem seminorm_apply {k n : ℕ} (f : 𝓢(E, F)) : SchwartzMap.seminorm 𝕜 k n f =
+    sInf { c | 0 ≤ c ∧ ∀ x, ‖x‖ ^ k * ‖iteratedFDeriv ℝ n f x‖ ≤ c } := by rfl
+
 /-- If one controls the seminorm for every `x`, then one controls the seminorm. -/
 theorem seminorm_le_bound (k n : ℕ) (f : 𝓢(E, F)) {M : ℝ} (hMp : 0 ≤ M)
     (hM : ∀ x, ‖x‖ ^ k * ‖iteratedFDeriv ℝ n f x‖ ≤ M) : SchwartzMap.seminorm 𝕜 k n f ≤ M :=
