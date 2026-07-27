@@ -289,24 +289,29 @@ instance [AddCancelCommMonoid α] : AddCancelCommMonoid <| Matrix m n α :=
 section
 
 @[simp]
+protected
 theorem zero_apply [Zero α] (i : m) (j : n) : (0 : Matrix m n α) i j = 0 := rfl
 
 @[simp]
 theorem of_symm_zero [Zero α] : of.symm (0 : Matrix m n α) = (0 : m → n → α) := rfl
 
 @[simp]
+protected
 theorem add_apply [Add α] (A B : Matrix m n α) (i : m) (j : n) :
     (A + B) i j = (A i j) + (B i j) := rfl
 
 @[simp]
+protected
 theorem smul_apply [SMul β α] (r : β) (A : Matrix m n α) (i : m) (j : n) :
     (r • A) i j = r • (A i j) := rfl
 
 @[simp]
+protected
 theorem sub_apply [Sub α] (A B : Matrix m n α) (i : m) (j : n) :
     (A - B) i j = (A i j) - (B i j) := rfl
 
 @[simp]
+protected
 theorem neg_apply [Neg α] (A : Matrix m n α) (i : m) (j : n) :
     (-A) i j = -(A i j) := rfl
 
@@ -414,9 +419,9 @@ def ofAddEquiv [Add α] : (m → n → α) ≃+ Matrix m n α where
 
 @[simp] lemma isAddUnit_iff [AddMonoid α] {A : Matrix m n α} :
     IsAddUnit A ↔ ∀ i j, IsAddUnit (A i j) := by
-  simp_rw [isAddUnit_iff_exists, Classical.skolem, forall_and,
-    ← Matrix.ext_iff, add_apply, zero_apply]
-  rfl
+  simp_rw [isAddUnit_iff_exists, Classical.skolem]
+  congrm (∃ B, ?_)
+  simp [← Matrix.ext_iff, forall_and]
 
 end Matrix
 
