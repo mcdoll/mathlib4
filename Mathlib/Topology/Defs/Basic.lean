@@ -146,6 +146,7 @@ def Dense (s : Set X) : Prop :=
   ∀ x, x ∈ closure s
 
 /-- `f : α → X` has dense range if its range (image) is a dense subset of `X`. -/
+@[fun_prop]
 def DenseRange {α : Type*} (f : α → X) := Dense (range f)
 
 /-- A function between topological spaces is continuous if the preimage

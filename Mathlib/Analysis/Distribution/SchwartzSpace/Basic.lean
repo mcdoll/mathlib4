@@ -1379,13 +1379,16 @@ def toLpCLM (p : ℝ≥0∞) [Fact (1 ≤ p)] (μ : Measure E := by volume_tac)
 theorem continuous_toLp {p : ℝ≥0∞} [Fact (1 ≤ p)] {μ : Measure E} [hμ : μ.HasTemperateGrowth] :
     Continuous (fun f : 𝓢(E, F) ↦ f.toLp p μ) := (toLpCLM ℝ F p μ).continuous
 
+attribute [fun_prop] DenseRange
+
 /-- Schwartz functions are dense in `Lp`. -/
+@[fun_prop]
 theorem denseRange_toLpCLM [FiniteDimensional ℝ E] [BorelSpace E] {p : ℝ≥0∞} (hp : p ≠ ⊤)
     [hp' : Fact (1 ≤ p)] {μ : Measure E} [hμ : μ.HasTemperateGrowth] [IsFiniteMeasureOnCompacts μ] :
     DenseRange (SchwartzMap.toLpCLM ℝ F p μ) := by
   intro f
   refine (mem_closure_iff_nhds_basis Metric.nhds_basis_closedBall).2 fun ε hε ↦ ?_
-  obtain ⟨g, hg₁, hg₂, hg₃⟩ := MemLp.exist_eLpNorm_sub_le hp hp'.out (Lp.memLp f) hε
+  obtain ⟨g, hg₁, hg₂, hg₃⟩ := (Lp.memLp f).exist_eLpNorm_sub_le hp hp'.out hε
   use (hg₁.toSchwartzMap hg₂).toLp p μ
   have : (f : E → F) - ((hg₁.toSchwartzMap hg₂).toLp p μ : E → F) =ᵐ[μ] (f : E → F) - g := by
     filter_upwards [(hg₁.toSchwartzMap hg₂).coeFn_toLp p μ]
@@ -1394,6 +1397,12 @@ theorem denseRange_toLpCLM [FiniteDimensional ℝ E] [BorelSpace E] {p : ℝ≥0
     Lp.dist_def, eLpNorm_congr_ae this]
   grw [hg₃, ENNReal.toReal_ofReal hε.le]
   simp
+
+/-- Schwartz functions are dense in `Lp`. -/
+@[fun_prop]
+theorem denseRange_toLp [FiniteDimensional ℝ E] [BorelSpace E] {p : ℝ≥0∞} (hp : p ≠ ⊤)
+    [hp' : Fact (1 ≤ p)] {μ : Measure E} [hμ : μ.HasTemperateGrowth] [IsFiniteMeasureOnCompacts μ] :
+    DenseRange (fun f : 𝓢(E, F) ↦ f.toLp p μ) := denseRange_toLpCLM hp
 
 end Lp
 

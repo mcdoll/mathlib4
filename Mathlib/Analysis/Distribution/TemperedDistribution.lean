@@ -210,6 +210,11 @@ def toTemperedDistributionCLM (μ : Measure E := by volume_tac) [μ.HasTemperate
 theorem toTemperedDistributionCLM_apply {p : ℝ≥0∞} [hp : Fact (1 ≤ p)] (f : Lp F p μ) :
     toTemperedDistributionCLM F μ p f = f := rfl
 
+@[fun_prop]
+theorem continuous_toTemperedDistribution {p : ℝ≥0∞} [hp : Fact (1 ≤ p)] :
+    Continuous (fun f : Lp F p μ ↦ (f : 𝓢'(E, F))) :=
+  (toTemperedDistributionCLM F μ p).continuous
+
 variable [FiniteDimensional ℝ E] [IsLocallyFiniteMeasure μ]
 
 theorem ker_toTemperedDistributionCLM_eq_bot {p : ℝ≥0∞} [hp : Fact (1 ≤ p)] :

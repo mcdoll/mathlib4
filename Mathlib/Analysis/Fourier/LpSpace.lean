@@ -97,36 +97,21 @@ end MeasureTheory.Lp
 
 @[simp]
 theorem SchwartzMap.toLp_fourier_eq (f : 𝓢(E, F)) : 𝓕 (f.toLp 2) = (𝓕 f).toLp 2 := by
-  apply LinearMap.extendOfNorm_eq
-  · exact SchwartzMap.denseRange_toLpCLM ENNReal.ofNat_ne_top
-  use 1
-  intro f
-  rw [one_mul]
-  exact (norm_fourier_toL2_eq f).le
+  apply LinearEquiv.extendOfIsometry_eq
 
 @[simp]
 theorem SchwartzMap.toLp_fourierInv_eq (f : 𝓢(E, F)) : 𝓕⁻ (f.toLp 2) = (𝓕⁻ f).toLp 2 := by
-  apply LinearMap.extendOfNorm_eq
-  · exact SchwartzMap.denseRange_toLpCLM ENNReal.ofNat_ne_top
-  use 1
-  intro f
-  rw [one_mul]
-  convert! (norm_fourier_toL2_eq (𝓕⁻ f)).symm.le
-  simp
+  apply LinearEquiv.extendOfIsometry_symm_eq
 
 namespace MeasureTheory.Lp
 
 /-- The `𝓢'`-Fourier transform and the `L2`-Fourier transform coincide on `L2`. -/
 theorem fourier_toTemperedDistribution_eq (f : Lp (α := E) F 2) :
     𝓕 (f : 𝓢'(E, F)) = (𝓕 f : Lp (α := E) F 2) := by
-  set p := fun f : Lp (α := E) F 2 ↦ 𝓕 (f : 𝓢'(E, F)) = (𝓕 f : Lp (α := E) F 2)
-  apply DenseRange.induction_on (p := p)
-    (SchwartzMap.denseRange_toLpCLM (p := 2) ENNReal.ofNat_ne_top) f
-  · apply isClosed_eq
-    · exact (fourierCLM ℂ 𝓢'(E, F) ∘L toTemperedDistributionCLM F volume 2).continuous
-    · exact (toTemperedDistributionCLM F volume 2 ∘L fourierCLM ℂ (Lp (α := E) F 2)).continuous
-  intro f
-  simp [p, TemperedDistribution.fourier_toTemperedDistributionCLM_eq]
+  induction f using DenseRange.induction_on (e := fun f : 𝓢(E, F) ↦ f.toLp 2)
+  · fun_prop (disch := simp)
+  · exact isClosed_eq (by fun_prop) (by fun_prop)
+  · simp [TemperedDistribution.fourier_toTemperedDistributionCLM_eq]
 
 /-- The `𝓢'`-inverse Fourier transform and the `L2`-inverse Fourier transform coincide on `L2`. -/
 theorem fourierInv_toTemperedDistribution_eq (f : Lp (α := E) F 2) :
